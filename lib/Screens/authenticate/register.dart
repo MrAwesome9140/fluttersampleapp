@@ -73,7 +73,7 @@ class _RegisterState extends State<Register> {
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
                     decoration: textInputDecoration.copyWith(hintText: "Email"),
-                    validator: (val) => val.isEmpty ? "Enter an email":null,
+                    validator: (val) => val.isEmpty || !val.contains("@") ? "Enter an email":null,
                     onChanged: (val) {
                       setState(() {
                         email = val;
@@ -163,7 +163,7 @@ class _RegisterState extends State<Register> {
                       dynamic result = await _auth.registerWithEmailAndPassword(email.trim(), password.trim(), _fullName, _age, _height, _weight);
                       if(result == null){
                         setState(() {
-                          error = "Please supply a valid email";
+                          //error = "Please supply a valid email";
                           loading = false;
                         });
                       }
