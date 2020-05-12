@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttersampleapp/Screens/authenticate/register.dart';
 import 'package:fluttersampleapp/Screens/authenticate/sign_in.dart';
+import 'package:fluttersampleapp/Screens/home/logged_in.dart';
+import 'package:fluttersampleapp/Screens/home/settings_form.dart';
 import 'package:fluttersampleapp/Screens/wrapper.dart';
 import 'package:fluttersampleapp/Services/auth.dart';
 import 'package:fluttersampleapp/Shared/loading.dart';
@@ -22,9 +24,10 @@ class MyApp extends StatelessWidget {
         home: SignIn(),
         routes: {
           '/loading': (context) => Loading(),
-          '/home': (context) => Home(),
+          '/home': (context) => LoggedIn(),
           '/signin': (context) => SignIn(),
-          '/register': (context) => Register()
+          '/register': (context) => Register(),
+          '/settings': (context) => SettingsForm()
         },
       ),
     );

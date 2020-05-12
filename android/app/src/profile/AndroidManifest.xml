@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.fluttersampleapp">
     <application
+            android:label="Aaroh's App"
             android:name="android.support.multidex.MultiDexApplication" >
     </application>
     <!-- Flutter needs it to communicate with the running application
