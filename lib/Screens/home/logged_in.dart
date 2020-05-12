@@ -73,14 +73,16 @@ class _LoggedInState extends State<LoggedIn> {
         selectedItemColor: Colors.red[500],
         onTap: _onItemTapped,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          label: Text("Sign Out", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600)),
-          icon: Icon(Icons.exit_to_app),
-          onPressed: () async {
-            await _auth.signOut();
-            Navigator.pushReplacementNamed(context, '/signin');
-          }
-        ),
+      floatingActionButton: FloatingActionButton(
+        //label: Text("Sign Out", style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600)),
+        tooltip: "Sign Out",
+        child: Icon(Icons.exit_to_app),
+        onPressed: () async {
+          Navigator.pushReplacementNamed(context, '/loading');
+          await _auth.signOut();
+          Navigator.pushReplacementNamed(context, '/signin');
+        },
+      ),
     );
   }
 }

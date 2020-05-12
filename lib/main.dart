@@ -9,6 +9,7 @@ import 'package:fluttersampleapp/Shared/loading.dart';
 import 'package:fluttersampleapp/models/user.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttersampleapp/Screens/home/home.dart';
+import 'Screens/authenticate/forgot_password.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,7 +28,8 @@ class MyApp extends StatelessWidget {
           '/home': (context) => LoggedIn(),
           '/signin': (context) => SignIn(),
           '/register': (context) => Register(),
-          '/settings': (context) => SettingsForm()
+          '/settings': (context) => SettingsForm(),
+          '/forgotpassword': (context) => ForgotPassword()
         },
       ),
     );

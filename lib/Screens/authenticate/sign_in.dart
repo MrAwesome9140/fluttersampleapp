@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:fluttersampleapp/Screens/authenticate/forgot_password.dart';
 import 'package:fluttersampleapp/Services/auth.dart';
 import 'package:fluttersampleapp/Shared/constants.dart';
 import 'package:fluttersampleapp/Shared/loading.dart';
@@ -26,84 +29,111 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return loading ? Loading() : Scaffold(
-        backgroundColor: Colors.brown[100],
-        appBar: AppBar(
-          backgroundColor: Colors.brown[400],
-          elevation: 0.0,
-          title: Text("Sign in to Aaroh's App"),
-          actions: <Widget>[
-            FlatButton.icon(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, "/register");
-              }, 
-              icon: Icon(Icons.person), 
-              label: Text("Register")
-              )
+      backgroundColor: Colors.brown[100],
+      appBar: AppBar(
+        backgroundColor: Colors.brown[400],
+        elevation: 0.0,
+        actions: <Widget>[
+          FlatButton.icon(
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, "/register");
+            }, 
+            icon: Icon(Icons.person), 
+            label: Text("Register")
+          )
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 150.0,
+              child: ClippingApp(height: 125.0, text: "Sign In", titleColor: Colors.brown[400], backgroundColor: Colors.brown[100])
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(vertical:20.0, horizontal:50.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 20),
+                    TextFormField(
+                      keyboardType: TextInputType.emailAddress,
+                      textCapitalization: TextCapitalization.none,
+                      decoration: textInputDecoration.copyWith(hintText: "Email"),
+                      validator: (val) => val.isEmpty ? "Enter an email":null,
+                      onChanged: (val) {
+                        setState(() {
+                          email = val;
+                        });
+                      } 
+                    ),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      decoration: textInputDecoration.copyWith(hintText: "Password"),
+                      validator: (val) => val.length<8 ? "Enter a password 8+ chars long":null,
+                      obscureText: true,
+                      onChanged: (val) {
+                        setState(() {
+                          password = val;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 20.0),
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black, width: 1.0),
+                        borderRadius: BorderRadius.circular(8.0)
+                      ),
+                      elevation: 10.0,
+                      color: Colors.deepOrange[400],
+                      child: Text(
+                        "Sign In", 
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () async {
+                        if(_formKey.currentState.validate()){
+                          setState(() {
+                            loading = true;
+                          });
+                          dynamic result = await _auth.signInWithEmailAndPassword(email.trim(), password.trim());
+                          if(result == null){
+                            setState(() {
+                              error = "Could not sign in";
+                              loading = false;
+                            });
+                          }
+                          else{
+                            Navigator.pushReplacementNamed(context, "/home");
+                          }
+                        }
+                      }
+                    ),
+                    SizedBox(height: 12.0),
+                    Container(
+                      height: 50.0,
+                      width: 150.0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, "/forgotpassword");
+                          },
+                          child: Text("Forgot Password?", style: TextStyle(color: Colors.lightBlue[700])),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12.0),
+                    Text(
+                      error,
+                      style: TextStyle(color: Colors.red, fontSize: 14.0),
+                    )
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-        body: Container(
-          padding: EdgeInsets.symmetric(vertical:20.0, horizontal:50.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                SizedBox(height: 20),
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  textCapitalization: TextCapitalization.none,
-                  decoration: textInputDecoration.copyWith(hintText: "Email"),
-                  validator: (val) => val.isEmpty ? "Enter an email":null,
-                  onChanged: (val) {
-                    setState(() {
-                      email = val;
-                    });
-                  } 
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  decoration: textInputDecoration.copyWith(hintText: "Password"),
-                  validator: (val) => val.length<8 ? "Enter a password 8+ chars long":null,
-                  obscureText: true,
-                  onChanged: (val) {
-                    setState(() {
-                      password = val;
-                    });
-                  },
-                ),
-                SizedBox(height: 20.0),
-                RaisedButton(
-                  color: Colors.pink[400],
-                  child: Text(
-                    "Sign In", 
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () async {
-                    if(_formKey.currentState.validate()){
-                      setState(() {
-                        loading = true;
-                      });
-                      dynamic result = await _auth.signInWithEmailAndPassword(email.trim(), password.trim());
-                      if(result == null){
-                        setState(() {
-                          error = "could not sign in";
-                          loading = false;
-                        });
-                      }
-                      else{
-                        Navigator.pushReplacementNamed(context, "/home");
-                      }
-                    }
-                  }
-                ),
-                SizedBox(height: 12.0),
-                Text(
-                  error,
-                  style: TextStyle(color: Colors.red, fontSize: 14.0),
-                )
-              ],
-            ),
-          ),
-        ),
+      ),
     );
   }
 }

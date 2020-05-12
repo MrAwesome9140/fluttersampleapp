@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttersampleapp/models/family.dart';
 import 'package:fluttersampleapp/models/user.dart';
 
@@ -30,6 +31,10 @@ class DatabaseService {
         weight: doc.data["weight"] ?? 0,
       );
     }).toList();
+  }
+
+  Future userResetPassword(String email){
+    return FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
   //userData from snapshot
