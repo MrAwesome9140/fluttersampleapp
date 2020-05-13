@@ -22,9 +22,10 @@ class DatabaseService {
 
   //family list from snapshot
 
-  List<Family> _familyListFromSnapshot(QuerySnapshot snapshot){
+  List<UserData> _userDataListFromSnapshot (QuerySnapshot snapshot){
     return snapshot.documents.map((doc){
-      return Family(
+      return UserData(
+        uid: doc.documentID,
         fullName: doc.data["fullName"] ?? "",
         age: doc.data["age"] ?? 0,
         height: doc.data["height"] ?? "",
@@ -50,8 +51,8 @@ class DatabaseService {
 
   //get family stream
 
-  Stream<List<Family>> get family {
-    return aarohCollection.snapshots().map(_familyListFromSnapshot);
+  Stream<List<UserData>> get family {
+    return aarohCollection.snapshots().map(_userDataListFromSnapshot);
   }
 
   //get user doc stream

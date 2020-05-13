@@ -14,6 +14,8 @@ class UserData{
   final String height;
   final int weight;
 
+  List<UserData> users;
+
   UserData({this.uid, this.fullName, this.age, this.height, this.weight});
 
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttersampleapp/models/family.dart';
+import 'package:fluttersampleapp/models/user.dart';
 
 class FamilyTile extends StatelessWidget {
 
-  final Family family;
+  final UserData family;
   FamilyTile({this.family});
 
   @override
