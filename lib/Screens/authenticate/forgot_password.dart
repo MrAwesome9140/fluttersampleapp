@@ -22,9 +22,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.yellow[800],
+      backgroundColor: Colors.brown[100],
       appBar: AppBar(
-        backgroundColor: Colors.lightGreen[300],
+        backgroundColor: Colors.brown[400],
         elevation: 0.0,
       ),
       key: _scaffoldKey,
@@ -32,9 +32,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         return Column(
           children: <Widget>[ 
             Container(
-              color: Colors.yellow[800],
+              color: Colors.brown[100],
               height: 150.0,
-              child: ClippingApp(height: 150.0, text: "Reset Password", titleColor: Colors.lightGreen[300], backgroundColor: Colors.yellow[800])
+              child: ClippingApp(height: 150.0, text: "Reset Password", titleColor: Colors.brown[400], backgroundColor: Colors.brown[100])
             ),
             SingleChildScrollView(
               child: Form(
@@ -100,10 +100,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
 class ClippingApp extends StatelessWidget {
 
-  double height;
-  String text;
-  Color titleColor;
-  Color backgroundColor;
+  final double height;
+  final String text;
+  final Color titleColor;
+  final Color backgroundColor;
 
   ClippingApp({this.height, this.text, this.titleColor, this.backgroundColor});
 
