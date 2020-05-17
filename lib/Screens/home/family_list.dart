@@ -24,11 +24,7 @@ class _FamilyListState extends State<FamilyList> {
     return ListView.builder(
       itemCount: family.length,
       itemBuilder: (context, index){
-<<<<<<< HEAD
         if(user == null || family[index].uid!=user.uid)
-=======
-        if(user==null || family[index].uid!=user.uid)
->>>>>>> 8d4e9cefc1b61833df835fed254dede5cd607a63
           return FamilyTile(family: family[index]);
         return null;
       }
