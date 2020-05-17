@@ -6,6 +6,7 @@ class GoogleMapView extends StatefulWidget {
 }
 
 class _GoogleMapViewState extends State<GoogleMapView> {
+  int hi;
   @override
   Widget build(BuildContext context) {
     return Container(
