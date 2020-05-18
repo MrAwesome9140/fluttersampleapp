@@ -33,6 +33,25 @@ class _LoggedInState extends State<LoggedIn> {
     });
   }
 
+  Widget floatingActionButton() {
+    return selectedIndex == 2 ? Container() : Padding(
+        padding: EdgeInsetsDirectional.fromSTEB(40.0, 0.0, 0.0, 20.0),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: FloatingActionButton(
+            //label: Text("Sign Out", style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600)),
+            tooltip: "Sign Out",
+            child: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              Navigator.pushReplacementNamed(context, '/loading');
+              await _auth.signOut();
+              Navigator.pushReplacementNamed(context, '/signin');
+            },
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,22 +94,7 @@ class _LoggedInState extends State<LoggedIn> {
         selectedItemColor: Colors.red[500],
         onTap: _onItemTapped,
       ),
-      floatingActionButton: Padding(
-        padding: EdgeInsetsDirectional.fromSTEB(40.0, 0.0, 0.0, 20.0),
-        child: Align(
-          alignment: Alignment.bottomLeft,
-          child: FloatingActionButton(
-            //label: Text("Sign Out", style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600)),
-            tooltip: "Sign Out",
-            child: Icon(Icons.exit_to_app),
-            onPressed: () async {
-              Navigator.pushReplacementNamed(context, '/loading');
-              await _auth.signOut();
-              Navigator.pushReplacementNamed(context, '/signin');
-            },
-          ),
-        ),
-      ),
+      floatingActionButton: floatingActionButton(),
     );
   }
 }
