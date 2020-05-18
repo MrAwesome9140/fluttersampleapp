@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/geolocation.dart';
 
 class GoogleMapView extends StatefulWidget {
   @override
@@ -15,6 +14,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   static Position _position;
   static final Geolocator _geolocator = Geolocator()..forceAndroidLocationManager;
   Completer<GoogleMapController> _controller = Completer();
+  CameraPosition _currCamera;
 
   StreamSubscription<Position> positionStream = _geolocator.getPositionStream(LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10)).listen((Position position) {
     _position = position ?? Position(latitude: 0, longitude: 0);
@@ -22,10 +22,10 @@ class _GoogleMapViewState extends State<GoogleMapView> {
 
   @override
   Widget build(BuildContext context) {
-    _updateCurrentLocation();
+    _updateCurrentPosition();
     return Scaffold(
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(target: _position==null? LatLng(0.0, 0.0):LatLng(_position.latitude, _position.longitude)),
+        initialCameraPosition: _currCamera,
         mapToolbarEnabled: true,
         mapType: MapType.normal,
         myLocationButtonEnabled: true,
@@ -36,7 +36,16 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     );
   }
 
-  static void _updateCurrentLocation() async {
-   
+  void _updateCurrentPosition() async {
+   if(_position==null){
+     setState(() {
+       _currCamera = CameraPosition(target: LatLng(0.0, 0.0));
+     });
+   }
+   else{
+     setState(() {
+       _currCamera = CameraPosition(target: LatLng(_position.latitude, _position.longitude));
+     });
+   }
   }
 }
