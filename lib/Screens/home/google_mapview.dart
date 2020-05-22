@@ -14,6 +14,7 @@ import 'package:geocoder/geocoder.dart';
 import 'package:provider/provider.dart';
 import 'package:async/async.dart';
 import 'dart:math' as math;
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 class GoogleMapView extends StatefulWidget {
   @override
@@ -28,6 +29,8 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   CameraPosition _currCamera;
   Set<Marker> _markers = Set<Marker>();
   BitmapDescriptor icon;
+  CameraPosition initialCameraPosition = CameraPosition(target: LatLng(0,0));
+  SwiperController _swiperController = SwiperController();
 
   LocationService _locationService;
   List<UserLocation> locs = List<UserLocation>();
@@ -39,6 +42,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   String selectedLoc = "";
 
   List<Color> colors = [Colors.red, Colors.green, Colors.yellow, Colors.blue];
+  List<Address> locStrings = List<Address>();
 
   lmao.LocationData currentLocation;
   lmao.Location location;
@@ -69,8 +73,10 @@ class _GoogleMapViewState extends State<GoogleMapView> {
 
     setInitialLocation();
     setStreams();
-    
+
     super.initState();
+
+    address();
   }
 
   void getPermissions() async {
@@ -86,7 +92,15 @@ class _GoogleMapViewState extends State<GoogleMapView> {
 
   void setStreams() async {
     LocationService().coords.listen((event) {
-      locs = event;
+      if(locs == null){
+        locs = event;
+        address();
+        putAllMarkersInView();
+      }
+      else{
+        locs = event;
+        address();
+      }
     });
 
     DatabaseService().family.listen((event) { 
@@ -108,22 +122,6 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     else
       _locationService = LocationService();
 
-    CameraPosition initialCameraPosition = CameraPosition(
-      target: LatLng(0.0, 0.0),
-      zoom: 15,
-      tilt: 80,
-      bearing: 30
-    );
-
-    if(currentLocation != null){
-      initialCameraPosition = CameraPosition(
-        target: LatLng(currentLocation.latitude, currentLocation.longitude),
-        zoom: 15,
-        tilt: 80,
-        bearing: 30
-      );
-    }
-
 
     return Scaffold(
       body: Stack(
@@ -135,6 +133,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
             onMapCreated: (GoogleMapController controller){
               _controller = controller;
               showPinsOnMap();
+              putAllMarkersInView();
             },
             onTap: (LatLng loc) {
               setState(() {
@@ -142,73 +141,98 @@ class _GoogleMapViewState extends State<GoogleMapView> {
               });
             },
           ),
-          AnimatedPositioned(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.all(8.0),
-                height: 70,
-                decoration: BoxDecoration(
-                  color: Colors.blue[200],
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      blurRadius: 20,
-                      offset: Offset.zero,
-                      color: Colors.grey.withOpacity(0.5)
-                    )
-                  ]
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      width: 50,
-                      height: 50,
-                      margin: EdgeInsets.only(left: 10.0),
-                      child: ClipOval(
-                        child: Icon(Icons.person_pin)
-                      )
+          userCards()
+        ],
+      ),
+    );
+  }
+
+  Widget userCards(){
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 100,
+        child: Swiper(
+          controller: _swiperController,
+          onIndexChanged: (int index){
+            UserLocation current = locs[index] ?? null;
+            CameraPosition wowo = CameraPosition(target: current.location, zoom: 14);
+            _controller.animateCamera(CameraUpdate.newCameraPosition(wowo));
+          },
+          itemCount: locs.length,
+          viewportFraction: 0.8,
+          scale: 0.9,
+          itemBuilder: (BuildContext context, int index) {
+            return Align(
+              alignment: Alignment.centerLeft,
+                child: AnimatedPositioned(
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          blurRadius: 20,
+                          offset: Offset.zero,
+                          color: Colors.grey.withOpacity(0.5)
+                        )
+                      ]
                     ),
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
-                                child: Text(
-                                  currentSelected.fullName,
-                                  style: TextStyle(color: Colors.green[600], fontWeight: FontWeight.w600, fontFamily: "TypeWriter"),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            margin: EdgeInsets.only(left: 0.0),
+                            child: ClipOval(
+                              child: Icon(Icons.person_pin)
+                            )
+                          ),
+                        ),
+                        Container(
+                          width: 200.0,
+                          margin: EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
+                                  child: Text(
+                                    getUserFromUserLoc(locs[index]).fullName ?? "No name found",
+                                    style: TextStyle(color: Colors.green[600], fontWeight: FontWeight.w600, fontFamily: "TypeWriter"),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
-                              child: Text(
-                                selectedLoc,
-                                style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.w300, fontFamily: "TypeWriter", fontSize: 10),
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                child: Text(
+                                  locStrings[index].addressLine ?? "",
+                                  style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.w300, fontFamily: "TypeWriter", fontSize: 10, height: 1.1),
+                                  overflow: TextOverflow.clip,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          )
                         )
-                      ),
-                    )
-                  ],
+                      ],
+                    ),
+                  ), 
+                  duration: Duration(milliseconds: 200),
+                  bottom: _pillPosition,
+                  right: 0.0,
+                  left: 0.0,
                 ),
-              ),
-            ), 
-            duration: Duration(milliseconds: 200),
-            bottom: _pillPosition,
-            right: 0.0,
-            left: 0.0,
-          )
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -227,14 +251,20 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     return addresses.first;
   }
 
+  void address(){
+    List<Future<Address>> futures = new List<Future<Address>>();
+    for(UserLocation uLoc in locs){
+      futures.add(geocodeLocationtoAddress(uLoc.location));
+    }
+    Future.wait(futures).asStream().listen((event) {
+      locStrings = event;
+    });
+  }
+
   void showPinsOnMap() {
-    int temp = 0;
-    for(UserLocation user in locs){
+    for(int i = 0; i<locs.length; i++){
+      UserLocation user = locs[i];
       UserData useThis = getUserFromUserLoc(user);
-      getClusterMarker(colors[temp], 150, useThis.fullName).asStream().listen((event) { 
-        icon = event;
-      });
-      temp++;
       _markers.add(Marker(
         position: user.location,
         infoWindow: InfoWindow(
@@ -243,11 +273,12 @@ class _GoogleMapViewState extends State<GoogleMapView> {
         markerId: MarkerId(useThis.fullName),
         onTap: () {
           currentSelected = useThis;
-          var temp = geocodeLocationtoAddress(user.location);
+          var temps = geocodeLocationtoAddress(user.location);
           _pillPosition = 0;
-          temp.asStream().listen((event) {
+          temps.asStream().listen((event) {
             selectedLoc = event.addressLine;
           });
+          _swiperController.move(i);
         },
         //icon: icon
       ));
@@ -257,7 +288,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
         putAllMarkersInView();
         first++;
       }
-      else if(locs.length == 1){
+      else if(locs.length == 1 && initialCameraPosition == null){
         _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           target: locs[0].location,
           zoom: 15
@@ -267,9 +298,12 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   }
 
   void putAllMarkersInView(){
-    setLatLngBounds();
-    CameraUpdate u2 = CameraUpdate.newLatLngBounds(bounds, 50);
-    _controller.animateCamera(u2);
+    if(_controller != null){
+      setLatLngBounds();
+      CameraUpdate u2 = CameraUpdate.newLatLngBounds(bounds, 50);
+      
+      _controller.animateCamera(u2);
+    }
   }
 
   void setLatLngBounds(){
@@ -287,51 +321,5 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     }
     bounds = LatLngBounds(southwest: LatLng(southwestLat, southwestLong), northeast: LatLng(northeastLat, northeastLong));
   }
-
-  Future<BitmapDescriptor> getClusterMarker(Color clusterColor, int width, String fullName) async {
-    final PictureRecorder pictureRecorder = PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
-    final Paint paint = Paint()..color = clusterColor;
-    final TextPainter textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
-
-    final double radius = width / 2;
-
-    canvas.drawCircle(
-      Offset(radius, radius),
-      radius,
-      paint,
-    );
-
-    textPainter.text = TextSpan(
-      text: fullName,
-      style: TextStyle(
-        fontSize: radius - 5,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    );
-
-    textPainter.layout();
-
-    textPainter.paint(
-      canvas,
-      Offset(
-        radius - textPainter.width / 2,
-        radius - textPainter.height / 2,
-      ),
-    );
-
-    final image = await pictureRecorder.endRecording().toImage(
-      radius.toInt() * 2,
-      radius.toInt() * 2,
-    );
-
-    final data = await image.toByteData(format: ImageByteFormat.png);
-
-    return BitmapDescriptor.fromBytes(data.buffer.asUint8List());
-  }
-
 
 }
