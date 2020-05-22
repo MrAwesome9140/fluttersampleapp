@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttersampleapp/Screens/home/all_settings.dart';
 import 'package:fluttersampleapp/Screens/home/home.dart';
 import 'package:fluttersampleapp/Screens/home/maps.dart';
 import 'package:fluttersampleapp/Screens/home/settings_form.dart';
 import 'package:fluttersampleapp/Services/auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fluttersampleapp/Screens/home/google_mapview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoggedIn extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class LoggedIn extends StatefulWidget {
 class _LoggedInState extends State<LoggedIn> {
 
   List<Widget> _widgets = <Widget>[
-    SettingsForm(),
+    AllSettings(),
     Home(),
     GoogleMapView()
   ];
@@ -46,6 +48,10 @@ class _LoggedInState extends State<LoggedIn> {
             onPressed: () async {
               Navigator.pushReplacementNamed(context, '/loading');
               await _auth.signOut();
+              await SharedPreferences.getInstance().then((value) {
+                value.remove("email");
+                value.remove("password");
+              });
               Navigator.pushReplacementNamed(context, '/signin');
             },
           ),

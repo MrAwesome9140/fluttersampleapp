@@ -6,6 +6,8 @@ import 'package:fluttersampleapp/Screens/authenticate/forgot_password.dart';
 import 'package:fluttersampleapp/Services/auth.dart';
 import 'package:fluttersampleapp/Shared/constants.dart';
 import 'package:fluttersampleapp/Shared/loading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignIn extends StatefulWidget {
 
@@ -26,6 +28,8 @@ class _SignInState extends State<SignIn> {
   String email = "";
   String password = "";
   String error = "";
+
+  bool saveInfo = false;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +97,9 @@ class _SignInState extends State<SignIn> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () async {
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        prefs.setString("email", email.trim());
+                        prefs.setString("password", password.trim());
                         if(_formKey.currentState.validate()){
                           setState(() {
                             loading = true;
@@ -109,6 +116,29 @@ class _SignInState extends State<SignIn> {
                           }
                         }
                       }
+                    ),
+                    SizedBox(height: 12.0),
+                    Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width*0.75,
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              "Keep me signed in: ",
+                              style: GoogleFonts.titanOne(fontSize: 12.0),
+                            ),
+                            Checkbox(
+                              value: saveInfo, 
+                              onChanged: (bool b){
+                                setState(() {
+                                  saveInfo = b;
+                                });
+                              },
+                              activeColor: Colors.green,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     SizedBox(height: 12.0),
                     Container(
