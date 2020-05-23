@@ -5,9 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttersampleapp/Services/database.dart';
 import 'package:fluttersampleapp/Services/location.dart';
+import 'package:fluttersampleapp/Services/storage.dart';
 import 'package:fluttersampleapp/models/user.dart';
 import 'package:fluttersampleapp/models/userloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as lmao;
 import 'package:geocoder/geocoder.dart';
@@ -44,6 +44,9 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   List<Color> colors = [Colors.red, Colors.green, Colors.yellow, Colors.blue];
   List<Address> locStrings = List<Address>();
 
+  Map<String, BitmapDescriptor> icons;
+  Map<String, Image> pics;
+
   lmao.LocationData currentLocation;
   lmao.Location location;
 
@@ -74,9 +77,21 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     setInitialLocation();
     setStreams();
 
+    StorageService.controller.stream.listen((event) {
+      updateMaps();
+      setState(() {});
+    });
+
     super.initState();
 
     address();
+
+    updateMaps();
+  }
+
+  void updateMaps(){
+    icons = StorageService.getAllProfileIcons();
+    pics = StorageService.getAllProfilePics();
   }
 
   void getPermissions() async {
@@ -127,6 +142,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
       body: Stack(
         children: <Widget>[ 
           GoogleMap(
+            mapToolbarEnabled: false,
             markers: _markers,
             initialCameraPosition: initialCameraPosition,
             mapType: MapType.normal,
@@ -148,10 +164,13 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   }
 
   Widget userCards(){
+    double width = MediaQuery.of(context).size.width;
+    double leftover;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
         height: 100,
+        width: MediaQuery.of(context).size.width,
         child: Swiper(
           controller: _swiperController,
           onIndexChanged: (int index){
@@ -163,73 +182,86 @@ class _GoogleMapViewState extends State<GoogleMapView> {
           viewportFraction: 0.8,
           scale: 0.9,
           itemBuilder: (BuildContext context, int index) {
-            return Align(
-              alignment: Alignment.centerLeft,
-                child: AnimatedPositioned(
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                          blurRadius: 20,
-                          offset: Offset.zero,
-                          color: Colors.grey.withOpacity(0.5)
-                        )
-                      ]
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      //mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            margin: EdgeInsets.only(left: 0.0),
-                            child: ClipOval(
-                              child: Icon(Icons.person_pin)
-                            )
-                          ),
-                        ),
-                        Container(
-                          width: 200.0,
-                          margin: EdgeInsets.only(left: 20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
-                                  child: Text(
-                                    getFullName(locs[index]),
-                                    style: TextStyle(color: Colors.green[600], fontWeight: FontWeight.w600, fontFamily: "TypeWriter"),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                child: Text(
-                                  locStrings[index].addressLine ?? "",
-                                  style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.w300, fontFamily: "TypeWriter", fontSize: 10, height: 1.1),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ),
-                            ],
+            return Container(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                  child: AnimatedPositioned(
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            blurRadius: 20,
+                            offset: Offset.zero,
+                            color: Colors.grey.withOpacity(0.5)
                           )
-                        )
-                      ],
-                    ),
-                  ), 
-                  duration: Duration(milliseconds: 200),
-                  bottom: _pillPosition,
-                  right: 0.0,
-                  left: 0.0,
-                ),
+                        ]
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        //mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: LayoutBuilder(
+                              builder: (BuildContext context, BoxConstraints constraints){
+                                double height = constraints.maxHeight;
+                                leftover = (height-60)/2;
+                                return Container(
+                                  width: 60,
+                                  height: 60,
+                                  margin: EdgeInsets.only(left: leftover),
+                                  child: CircleAvatar(
+                                    radius: 30.0,
+                                    backgroundImage: pics.containsKey(locs[index].uid) ? pics[locs[index].uid].image:null
+                                  )
+                                );
+                              }
+                            ),
+                          ),
+                          LayoutBuilder(
+                            builder: (BuildContext context, BoxConstraints constraints){
+                              return Container(
+                                width: width*0.7-(60+leftover),
+                                margin: EdgeInsets.only(left: 20.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
+                                        child: Text(
+                                          getFullName(locs[index]),
+                                          style: TextStyle(color: Colors.green[600], fontWeight: FontWeight.w600, fontFamily: "TypeWriter"),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                      child: Text(
+                                        locStrings[index].addressLine ?? "",
+                                        style: TextStyle(color: Colors.blue[600], fontWeight: FontWeight.w300, fontFamily: "TypeWriter", fontSize: 10, height: 1.1),
+                                        overflow: TextOverflow.clip,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              );
+                            }
+                          )
+                        ],
+                      ),
+                    ), 
+                    duration: Duration(milliseconds: 200),
+                    bottom: _pillPosition,
+                    right: 0.0,
+                    left: 0.0,
+                  ),
+              ),
             );
           },
         ),
@@ -266,6 +298,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     });
   }
 
+
   void showPinsOnMap() {
     for(int i = 0; i<locs.length; i++){
       UserLocation user = locs[i];
@@ -285,7 +318,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
           });
           _swiperController.move(i);
         },
-        //icon: icon
+        //icon: icons.containsKey(user.uid) ? icons[user.uid]:null
       ));
     }
     setState(() {

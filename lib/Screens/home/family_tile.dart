@@ -5,22 +5,23 @@ import 'package:fluttersampleapp/models/user.dart';
 class FamilyTile extends StatelessWidget {
 
   final UserData family;
-  FamilyTile({this.family});
+  final Image image;
+  FamilyTile({this.family, this.image});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
       child: Container(
-        height: 80.0,
+        height: 90.0,
         child: Card(
           child: Center(
             child: ListTile(
               leading: Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
                 child: CircleAvatar(
-                  radius: 25.0,
-                  backgroundImage: AssetImage("lib/assets/person.png"),
+                  radius: image != null ? 25.0 : 25.0,
+                  backgroundImage: image != null && family != null ? image.image : AssetImage("lib/assets/person.png")
                 ),
               ),              
               title: Padding(

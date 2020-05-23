@@ -37,10 +37,10 @@ class _LoggedInState extends State<LoggedIn> {
   }
 
   Widget floatingActionButton() {
-    return selectedIndex == 2 ? Container() : Padding(
+    return selectedIndex == 2 || selectedIndex == 1 ? Container() : Padding(
         padding: EdgeInsetsDirectional.fromSTEB(40.0, 0.0, 0.0, 20.0),
         child: Align(
-          alignment: Alignment.bottomLeft,
+          alignment: Alignment.bottomRight,
           child: FloatingActionButton(
             //label: Text("Sign Out", style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600)),
             tooltip: "Sign Out",

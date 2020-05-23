@@ -48,6 +48,7 @@ class _SetProfilePicState extends State<SetProfilePic> {
                         title: currentImage == null ? "Set Profile Picture":"Change Profile Picture",
                         onTap: () async {
                           await filePicker();
+                          //await editImage();
                           Image temp = await StorageService.uploadImage(file, context);
                           setState(() {
                             currentImage = temp;
@@ -65,6 +66,24 @@ class _SetProfilePicState extends State<SetProfilePic> {
     );
   }
 
+  //  Future<void> getimageditor() async {
+  //   await Navigator.push(context, MaterialPageRoute(
+  //       builder: (context){
+  //         return ImageEditorPro(
+  //           appBarColor: Colors.blue,
+  //           bottomBarColor: Colors.blue,
+  //         );
+  //       }
+  //   )).then((geteditimage){
+  //     if(geteditimage != null){
+  //       setState(() {
+  //         file = geteditimage;
+  //       });
+  //     }
+  //   }).catchError((er){print(er);});
+
+  // }
+
   Future<void> getCurrentImage() async {
     String curUID;
     await StorageService.getCurUID().then((value) => curUID = value);
@@ -74,6 +93,27 @@ class _SetProfilePicState extends State<SetProfilePic> {
       }
     });
   }
+
+  // Future editImage() async{
+  //   ImageEditorOption temp = ImageEditorOption();
+  //   temp.addOptions([
+  //     FlipOption(
+  //       horizontal: true,
+  //       vertical: true
+  //     ),
+  //     RotateOption(90),
+  //     ClipOption(
+  //       x: 0,
+  //       y: 0,
+  //       width: MediaQuery.of(context).size.width,
+  //       height: MediaQuery.of(context).size.width
+  //     )
+  //   ]);
+  //   await ImageEditor.editImageAndGetFile(
+  //     image: await file.readAsBytes(), 
+  //     imageEditorOption: temp
+  //   ).then((value) => file = value);
+  // }
 
   Future<void> filePicker() async {
     try{
