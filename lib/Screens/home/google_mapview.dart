@@ -206,7 +206,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
                                 child: Padding(
                                   padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
                                   child: Text(
-                                    getUserFromUserLoc(locs[index]).fullName ?? "No name found",
+                                    getFullName(locs[index]),
                                     style: TextStyle(color: Colors.green[600], fontWeight: FontWeight.w600, fontFamily: "TypeWriter"),
                                   ),
                                 ),
@@ -235,6 +235,11 @@ class _GoogleMapViewState extends State<GoogleMapView> {
         ),
       ),
     );
+  }
+
+  String getFullName(UserLocation user){
+    UserData temp = getUserFromUserLoc(user);
+    return temp != null ? temp.fullName:"";
   }
 
   UserData getUserFromUserLoc(UserLocation user){
@@ -268,9 +273,9 @@ class _GoogleMapViewState extends State<GoogleMapView> {
       _markers.add(Marker(
         position: user.location,
         infoWindow: InfoWindow(
-          title: useThis.fullName,
+          title: useThis != null ? useThis.fullName : "",
         ),
-        markerId: MarkerId(useThis.fullName),
+        markerId: MarkerId(useThis != null ? useThis.fullName:""),
         onTap: () {
           currentSelected = useThis;
           var temps = geocodeLocationtoAddress(user.location);
@@ -307,8 +312,8 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   }
 
   void setLatLngBounds(){
-    double southwestLat = double.maxFinite;
-    double southwestLong = double.maxFinite;
+    double southwestLat = 200.0;
+    double southwestLong = 200.0;
     double northeastLat = -200.0;
     double northeastLong = -200.0;
     for(UserLocation user in locs){

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttersampleapp/Screens/authenticate/register.dart';
 import 'package:fluttersampleapp/Screens/authenticate/sign_in.dart';
+import 'package:fluttersampleapp/Screens/home/all_settings.dart';
 import 'package:fluttersampleapp/Screens/home/logged_in.dart';
 import 'package:fluttersampleapp/Screens/home/set_profile_pic.dart';
 import 'package:fluttersampleapp/Screens/home/settings_form.dart';
@@ -42,7 +43,8 @@ class MyApp extends StatelessWidget {
           '/register': (context) => Register(),
           '/settings': (context) => SettingsForm(),
           '/forgotpassword': (context) => ForgotPassword(),
-          '/setprofilepic': (context) => SetProfilePic()
+          '/setprofilepic': (context) => SetProfilePic(),
+          '/allSettings': (context) => AllSettings()
         },
       ),
     );

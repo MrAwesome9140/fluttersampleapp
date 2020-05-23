@@ -16,7 +16,7 @@ class LoggedIn extends StatefulWidget {
 class _LoggedInState extends State<LoggedIn> {
 
   List<Widget> _widgets = <Widget>[
-    AllSettings(),
+    null,
     Home(),
     GoogleMapView()
   ];
@@ -46,13 +46,13 @@ class _LoggedInState extends State<LoggedIn> {
             tooltip: "Sign Out",
             child: Icon(Icons.exit_to_app),
             onPressed: () async {
-              Navigator.pushReplacementNamed(context, '/loading');
+              Navigator.of(context).pushReplacementNamed('/loading');
               await _auth.signOut();
               await SharedPreferences.getInstance().then((value) {
                 value.remove("email");
                 value.remove("password");
               });
-              Navigator.pushReplacementNamed(context, '/signin');
+              Navigator.of(context).pushReplacementNamed('/signin');
             },
           ),
         ),
@@ -61,6 +61,7 @@ class _LoggedInState extends State<LoggedIn> {
 
   @override
   Widget build(BuildContext context) {
+    _widgets[0] = AllSettings(superiorContext: context);
     return Scaffold(
       body: Stack(
         children: new List<Widget>.generate(_widgets.length, (index) {

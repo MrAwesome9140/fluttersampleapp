@@ -1,7 +1,9 @@
 import 'dart:collection';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttersampleapp/Screens/home/all_settings.dart';
 import 'package:fluttersampleapp/Services/database.dart';
 import 'package:fluttersampleapp/models/user.dart';
 import 'package:provider/provider.dart';
@@ -11,12 +13,19 @@ class StorageService{
 
   static String curUID;
 
-
-  static Future<void> uploadImage(File file, BuildContext context) async {
-    getCurUID(context);
+  static Future<Image> uploadImage(File file, BuildContext moreContext) async {
+    try{
+      await FirebaseStorage.instance.ref().child("images/$curUID.jpg").delete();
+    } catch(e){
+      print(e.toString());
+    }
+    getCurUID();
     StorageReference storageReference;
     storageReference = FirebaseStorage.instance.ref().child("images/$curUID.jpg");
-    final StorageUploadTask uploadTask = storageReference.putFile(file);
+    Navigator.of(moreContext).pushNamed("/loading");
+    await storageReference.putFile(file).onComplete;
+    Navigator.of(moreContext).pop();
+    return Image.file(file);
   }
 
   static Map<String, File> getAllProfilePics(){
@@ -38,26 +47,32 @@ class StorageService{
     return images;
   }
 
-  static Future<File> getCurUserImage(String uid) async {
+  static Future<Image> getCurUserImage(String uid) async {
     StorageReference ref = FirebaseStorage.instance.ref().child("images/$uid.jpg");
     if(ref == null){
       return null;
     }
-    final String url = await ref.getDownloadURL();
-    final http.Response downloadData = await http.get(url);
-    final Directory systemTempDir = Directory.systemTemp;
-    final File tempFile = new File("${systemTempDir.path}/$uid.jpg");
-    if(tempFile.existsSync()){
-      await tempFile.delete();
+    try{
+      final String url = await ref.getDownloadURL();
+      return Image.network(url, fit: BoxFit.scaleDown);
+      // final http.Response downloadData = await http.get(url);
+      // final Directory systemTempDir = Directory.systemTemp;
+      // final File tempFile = new File("${systemTempDir.path}/$uid.jpg");
+      // if(tempFile.existsSync()){
+      //   await tempFile.delete();
+      // }
+      // await tempFile.create();
+      // return tempFile;
+    }catch(e){
+      print(e.toString());
+      return null;
     }
-    await tempFile.create();
-    return tempFile;
   }
 
-  static String getCurUID(BuildContext context){
-    final usersV = Provider.of<User>(context) ?? [];
-    curUID = usersV;
-    return curUID;
+  static Future<String> getCurUID() async {
+    final usersV = await FirebaseAuth.instance.currentUser();
+    curUID = usersV.uid;
+    return usersV.uid;
   }
 
 }
